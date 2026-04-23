@@ -9,6 +9,7 @@ import {
   boolean,
   index,
   uniqueIndex,
+  foreignKey,
 } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
@@ -365,21 +366,31 @@ export const systemConfigSnapshots = mysqlTable(
 export type SystemConfigSnapshot = typeof systemConfigSnapshots.$inferSelect;
 export type InsertSystemConfigSnapshot = typeof systemConfigSnapshots.$inferInsert;
 
-export const systemSettingAuditLogs = mysqlTable("system_setting_audit_logs", {
-  id: int("id").autoincrement().primaryKey(),
-  settingKey: varchar("settingKey", { length: 120 }),
-  action: mysqlEnum("action", ["set", "clear", "import", "restore", "export"]).notNull().default("set"),
-  changeSource: mysqlEnum("changeSource", ["admin_ui", "snapshot_import", "snapshot_restore", "snapshot_export"]).notNull().default("admin_ui"),
-  snapshotId: int("snapshotId").references(() => systemConfigSnapshots.id),
-  isSecret: boolean("isSecret").default(false).notNull(),
-  previousValuePreview: text("previousValuePreview"),
-  nextValuePreview: text("nextValuePreview"),
-  previousValueHash: varchar("previousValueHash", { length: 64 }),
-  nextValueHash: varchar("nextValueHash", { length: 64 }),
-  metadata: text("metadata"),
-  updatedBy: int("updatedBy").references(() => users.id),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+export const systemSettingAuditLogs = mysqlTable(
+  "system_setting_audit_logs",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    settingKey: varchar("settingKey", { length: 120 }),
+    action: mysqlEnum("action", ["set", "clear", "import", "restore", "export"]).notNull().default("set"),
+    changeSource: mysqlEnum("changeSource", ["admin_ui", "snapshot_import", "snapshot_restore", "snapshot_export"]).notNull().default("admin_ui"),
+    snapshotId: int("snapshotId"),
+    isSecret: boolean("isSecret").default(false).notNull(),
+    previousValuePreview: text("previousValuePreview"),
+    nextValuePreview: text("nextValuePreview"),
+    previousValueHash: varchar("previousValueHash", { length: 64 }),
+    nextValueHash: varchar("nextValueHash", { length: 64 }),
+    metadata: text("metadata"),
+    updatedBy: int("updatedBy").references(() => users.id),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (table) => ({
+    snapshotFk: foreignKey({
+      name: "ss_audit_logs_snapshot_fk",
+      columns: [table.snapshotId],
+      foreignColumns: [systemConfigSnapshots.id],
+    }),
+  })
+);
 
 export type SystemSettingAuditLog = typeof systemSettingAuditLogs.$inferSelect;
 export type InsertSystemSettingAuditLog = typeof systemSettingAuditLogs.$inferInsert;
@@ -492,7 +503,7 @@ export const adminAlertNotifications = mysqlTable(
   {
     id: int("id").autoincrement().primaryKey(),
     eventKey: varchar("eventKey", { length: 191 }).notNull(),
-    auditLogId: int("auditLogId").notNull().references(() => adminActionAuditLogs.id),
+    auditLogId: int("auditLogId").notNull(),
     actionType: varchar("actionType", { length: 96 }).notNull(),
     severity: mysqlEnum("severity", ["warn", "critical"]).notNull().default("warn"),
     channel: mysqlEnum("channel", ["log", "inbox", "email", "webhook"]).notNull().default("log"),
@@ -513,6 +524,11 @@ export const adminAlertNotifications = mysqlTable(
   },
   (table) => ({
     eventKeyUnique: uniqueIndex("admin_alert_notifications_eventKey_unique").on(table.eventKey),
+    auditLogFk: foreignKey({
+      name: "admin_alert_notifs_audit_log_fk",
+      columns: [table.auditLogId],
+      foreignColumns: [adminActionAuditLogs.id],
+    }),
   })
 );
 
@@ -608,7 +624,7 @@ export const adminRiskRuleExecutions = mysqlTable(
   {
     id: int("id").autoincrement().primaryKey(),
     incidentId: int("incidentId").notNull().references(() => adminRiskIncidents.id),
-    ruleId: int("ruleId").notNull().references(() => adminRiskAutomationRules.id),
+    ruleId: int("ruleId").notNull(),
     playbookId: int("playbookId"),
     status: mysqlEnum("status", ["matched", "executed", "skipped", "failed"]).notNull().default("matched"),
     executionSummary: text("executionSummary"),
@@ -616,7 +632,14 @@ export const adminRiskRuleExecutions = mysqlTable(
     executedAt: timestamp("executedAt"),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  }
+  },
+  (table) => ({
+    ruleFk: foreignKey({
+      name: "risk_rule_exec_rule_fk",
+      columns: [table.ruleId],
+      foreignColumns: [adminRiskAutomationRules.id],
+    }),
+  })
 );
 
 export type AdminRiskRuleExecution = typeof adminRiskRuleExecutions.$inferSelect;
