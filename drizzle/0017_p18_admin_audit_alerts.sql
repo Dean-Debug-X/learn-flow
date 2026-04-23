@@ -25,7 +25,7 @@ CREATE TABLE `admin_alert_notifications` (
   `updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT `admin_alert_notifications_id` PRIMARY KEY(`id`),
   CONSTRAINT `admin_alert_notifications_eventKey_unique` UNIQUE(`eventKey`),
-  CONSTRAINT `admin_alert_notifications_auditLogId_admin_action_audit_logs_id_fk` FOREIGN KEY (`auditLogId`) REFERENCES `admin_action_audit_logs`(`id`) ON DELETE no action ON UPDATE no action,
+  CONSTRAINT `admin_alert_notifs_audit_log_fk` FOREIGN KEY (`auditLogId`) REFERENCES `admin_action_audit_logs`(`id`) ON DELETE no action ON UPDATE no action,
   CONSTRAINT `admin_alert_notifications_targetUserId_users_id_fk` FOREIGN KEY (`targetUserId`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action,
   CONSTRAINT `admin_alert_notifications_relatedOrderId_orders_id_fk` FOREIGN KEY (`relatedOrderId`) REFERENCES `orders`(`id`) ON DELETE no action ON UPDATE no action
 );

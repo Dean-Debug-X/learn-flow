@@ -49,10 +49,10 @@ CREATE TABLE `admin_risk_rule_executions` (
 --> statement-breakpoint
 ALTER TABLE `admin_risk_incidents` ADD CONSTRAINT `admin_risk_incidents_playbookId_admin_risk_playbooks_id_fk` FOREIGN KEY (`playbookId`) REFERENCES `admin_risk_playbooks`(`id`) ON DELETE no action ON UPDATE no action;
 --> statement-breakpoint
-ALTER TABLE `admin_risk_automation_rules` ADD CONSTRAINT `admin_risk_automation_rules_playbookId_admin_risk_playbooks_id_fk` FOREIGN KEY (`playbookId`) REFERENCES `admin_risk_playbooks`(`id`) ON DELETE no action ON UPDATE no action;
+ALTER TABLE `admin_risk_automation_rules` ADD CONSTRAINT `risk_auto_rules_playbook_fk` FOREIGN KEY (`playbookId`) REFERENCES `admin_risk_playbooks`(`id`) ON DELETE no action ON UPDATE no action;
 --> statement-breakpoint
 ALTER TABLE `admin_risk_rule_executions` ADD CONSTRAINT `admin_risk_rule_executions_incidentId_admin_risk_incidents_id_fk` FOREIGN KEY (`incidentId`) REFERENCES `admin_risk_incidents`(`id`) ON DELETE no action ON UPDATE no action;
 --> statement-breakpoint
-ALTER TABLE `admin_risk_rule_executions` ADD CONSTRAINT `admin_risk_rule_executions_ruleId_admin_risk_automation_rules_id_fk` FOREIGN KEY (`ruleId`) REFERENCES `admin_risk_automation_rules`(`id`) ON DELETE no action ON UPDATE no action;
+ALTER TABLE `admin_risk_rule_executions` ADD CONSTRAINT `risk_rule_exec_rule_fk` FOREIGN KEY (`ruleId`) REFERENCES `admin_risk_automation_rules`(`id`) ON DELETE no action ON UPDATE no action;
 --> statement-breakpoint
 ALTER TABLE `admin_risk_rule_executions` ADD CONSTRAINT `admin_risk_rule_executions_playbookId_admin_risk_playbooks_id_fk` FOREIGN KEY (`playbookId`) REFERENCES `admin_risk_playbooks`(`id`) ON DELETE no action ON UPDATE no action;

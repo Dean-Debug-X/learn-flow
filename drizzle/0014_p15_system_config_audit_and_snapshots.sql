@@ -31,6 +31,6 @@ CREATE TABLE `system_setting_audit_logs` (
   CONSTRAINT `system_setting_audit_logs_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-ALTER TABLE `system_setting_audit_logs` ADD CONSTRAINT `system_setting_audit_logs_snapshotId_system_config_snapshots_id_fk` FOREIGN KEY (`snapshotId`) REFERENCES `system_config_snapshots`(`id`) ON DELETE no action ON UPDATE no action;
+ALTER TABLE `system_setting_audit_logs` ADD CONSTRAINT `ss_audit_logs_snapshot_fk` FOREIGN KEY (`snapshotId`) REFERENCES `system_config_snapshots`(`id`) ON DELETE no action ON UPDATE no action;
 --> statement-breakpoint
 ALTER TABLE `system_setting_audit_logs` ADD CONSTRAINT `system_setting_audit_logs_updatedBy_users_id_fk` FOREIGN KEY (`updatedBy`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;
