@@ -15,7 +15,7 @@ CREATE TABLE `user_notifications` (
   CONSTRAINT `user_notifications_relatedOrderId_orders_id_fk` FOREIGN KEY (`relatedOrderId`) REFERENCES `orders`(`id`) ON DELETE no action ON UPDATE no action,
   CONSTRAINT `user_notifications_eventKey_unique` UNIQUE(`eventKey`)
 );
-
+--> statement-breakpoint
 CREATE TABLE `email_deliveries` (
   `id` int AUTO_INCREMENT NOT NULL,
   `eventKey` varchar(191) NOT NULL,

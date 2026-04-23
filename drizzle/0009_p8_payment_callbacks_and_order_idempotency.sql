@@ -7,9 +7,9 @@ ALTER TABLE `orders`
   ADD COLUMN `benefitsGrantedAt` timestamp NULL,
   ADD COLUMN `benefitsRepairCount` int NOT NULL DEFAULT 0,
   ADD COLUMN `lastBenefitRepairAt` timestamp NULL;
-
+--> statement-breakpoint
 CREATE UNIQUE INDEX `orders_idempotencyKey_unique` ON `orders` (`idempotencyKey`);
-
+--> statement-breakpoint
 CREATE TABLE `payment_callbacks` (
   `id` int AUTO_INCREMENT PRIMARY KEY,
   `provider` enum('wechat','alipay','custom','manual') NOT NULL DEFAULT 'custom',

@@ -5,7 +5,7 @@ ALTER TABLE `users`
   ADD COLUMN `phoneVerifiedAt` timestamp NULL,
   ADD COLUMN `status` enum('active','disabled') NOT NULL DEFAULT 'active',
   ADD COLUMN `sessionVersion` int NOT NULL DEFAULT 0;
-
+--> statement-breakpoint
 CREATE TABLE `user_identities` (
   `id` int AUTO_INCREMENT NOT NULL,
   `userId` int NOT NULL,
@@ -25,10 +25,11 @@ CREATE TABLE `user_identities` (
   CONSTRAINT `user_identities_userId_users_id_fk` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `user_identities_provider_user_unique` UNIQUE(`provider`,`providerUserId`)
 );
-
+--> statement-breakpoint
 CREATE INDEX `user_identities_user_provider_idx` ON `user_identities` (`userId`,`provider`);
+--> statement-breakpoint
 CREATE INDEX `user_identities_provider_union_idx` ON `user_identities` (`providerUnionId`);
-
+--> statement-breakpoint
 INSERT IGNORE INTO `user_identities` (
   `userId`,
   `provider`,
@@ -52,7 +53,7 @@ SELECT
   `updatedAt`
 FROM `users`
 WHERE `openId` IS NOT NULL AND `openId` <> '';
-
+--> statement-breakpoint
 CREATE TABLE `auth_otps` (
   `id` int AUTO_INCREMENT NOT NULL,
   `channel` enum('sms','email') NOT NULL,
@@ -69,10 +70,11 @@ CREATE TABLE `auth_otps` (
   `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT `auth_otps_id` PRIMARY KEY(`id`)
 );
-
+--> statement-breakpoint
 CREATE INDEX `auth_otps_target_lookup_idx` ON `auth_otps` (`channel`,`target`,`purpose`,`createdAt`);
+--> statement-breakpoint
 CREATE INDEX `auth_otps_expires_at_idx` ON `auth_otps` (`expiresAt`);
-
+--> statement-breakpoint
 CREATE TABLE `auth_audit_logs` (
   `id` int AUTO_INCREMENT NOT NULL,
   `userId` int,
@@ -90,6 +92,7 @@ CREATE TABLE `auth_audit_logs` (
   CONSTRAINT `auth_audit_logs_userId_users_id_fk` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `auth_audit_logs_identityId_user_identities_id_fk` FOREIGN KEY (`identityId`) REFERENCES `user_identities`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
-
+--> statement-breakpoint
 CREATE INDEX `auth_audit_logs_user_created_idx` ON `auth_audit_logs` (`userId`,`createdAt`);
+--> statement-breakpoint
 CREATE INDEX `auth_audit_logs_event_created_idx` ON `auth_audit_logs` (`eventType`,`createdAt`);

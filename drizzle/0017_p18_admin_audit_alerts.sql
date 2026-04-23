@@ -1,6 +1,7 @@
 ALTER TABLE `user_notifications` MODIFY COLUMN `eventType` enum('payment_paid','payment_failed','payment_cancelled','payment_refunded','benefits_repaired','benefits_revoked','admin_audit_alert') NOT NULL;
+--> statement-breakpoint
 ALTER TABLE `email_deliveries` MODIFY COLUMN `eventType` enum('payment_paid','payment_failed','payment_cancelled','payment_refunded','benefits_repaired','benefits_revoked','admin_audit_alert','system_test') NOT NULL;
-
+--> statement-breakpoint
 CREATE TABLE `admin_alert_notifications` (
   `id` int AUTO_INCREMENT NOT NULL,
   `eventKey` varchar(191) NOT NULL,

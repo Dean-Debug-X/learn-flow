@@ -4,10 +4,10 @@ ALTER TABLE `admin_risk_incidents`
   ADD COLUMN `ownerAssignedAt` timestamp NULL AFTER `ownerUserId`,
   ADD COLUMN `ackDueAt` timestamp NULL AFTER `ownerAssignedAt`,
   ADD COLUMN `resolveDueAt` timestamp NULL AFTER `ackDueAt`;
-
+--> statement-breakpoint
 ALTER TABLE `admin_risk_incidents`
   ADD CONSTRAINT `admin_risk_incidents_ownerUserId_users_id_fk` FOREIGN KEY (`ownerUserId`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;
-
+--> statement-breakpoint
 CREATE TABLE `admin_risk_sla_policies` (
   `id` int AUTO_INCREMENT NOT NULL,
   `name` varchar(128) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE `admin_risk_sla_policies` (
   `updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT `admin_risk_sla_policies_id` PRIMARY KEY(`id`)
 );
-
+--> statement-breakpoint
 CREATE TABLE `admin_risk_oncall_assignments` (
   `id` int AUTO_INCREMENT NOT NULL,
   `name` varchar(128) NOT NULL,

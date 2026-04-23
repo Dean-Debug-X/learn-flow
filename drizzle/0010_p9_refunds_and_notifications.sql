@@ -5,7 +5,7 @@ ALTER TABLE `orders`
   ADD COLUMN `benefitsRevokedAt` timestamp NULL,
   ADD COLUMN `benefitsRevokeCount` int NOT NULL DEFAULT 0,
   ADD COLUMN `lastBenefitRevokeAt` timestamp NULL;
-
+--> statement-breakpoint
 CREATE TABLE `payment_notifications` (
   `id` int AUTO_INCREMENT NOT NULL,
   `eventKey` varchar(191) NOT NULL,

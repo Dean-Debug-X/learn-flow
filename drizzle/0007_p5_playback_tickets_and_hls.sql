@@ -4,5 +4,5 @@ ALTER TABLE `media_assets`
   ADD COLUMN `hlsManifestKey` varchar(512),
   ADD COLUMN `hlsManifestUrl` text,
   ADD COLUMN `posterUrl` text;
-
+--> statement-breakpoint
 CREATE UNIQUE INDEX `media_assets_hlsManifestKey_unique` ON `media_assets` (`hlsManifestKey`);
