@@ -1,0 +1,23 @@
+CREATE TABLE `transcode_jobs` (
+  `id` int AUTO_INCREMENT NOT NULL,
+  `mediaId` int NOT NULL,
+  `requestedBy` int,
+  `provider` enum('manual','webhook','custom') NOT NULL DEFAULT 'manual',
+  `status` enum('queued','dispatched','processing','succeeded','failed','cancelled') NOT NULL DEFAULT 'queued',
+  `profile` varchar(64) NOT NULL DEFAULT 'adaptive-720p',
+  `outputPrefix` varchar(512),
+  `callbackToken` varchar(128) NOT NULL,
+  `externalJobId` varchar(128),
+  `progress` int NOT NULL DEFAULT 0,
+  `errorMessage` text,
+  `requestPayload` text,
+  `responsePayload` text,
+  `startedAt` timestamp NULL,
+  `finishedAt` timestamp NULL,
+  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `transcode_jobs_id` PRIMARY KEY(`id`),
+  CONSTRAINT `transcode_jobs_callbackToken_unique` UNIQUE(`callbackToken`),
+  CONSTRAINT `transcode_jobs_mediaId_media_assets_id_fk` FOREIGN KEY (`mediaId`) REFERENCES `media_assets`(`id`) ON DELETE no action ON UPDATE no action,
+  CONSTRAINT `transcode_jobs_requestedBy_users_id_fk` FOREIGN KEY (`requestedBy`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action
+);

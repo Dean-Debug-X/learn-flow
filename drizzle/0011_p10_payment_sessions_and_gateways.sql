@@ -1,0 +1,20 @@
+CREATE TABLE `payment_sessions` (
+  `id` int AUTO_INCREMENT NOT NULL,
+  `orderId` int NOT NULL,
+  `provider` enum('mock','manual','wechat','alipay') NOT NULL DEFAULT 'mock',
+  `channel` enum('native','page','jsapi','wap','manual') NOT NULL DEFAULT 'manual',
+  `status` enum('created','awaiting_action','pending_callback','paid','failed','cancelled','expired') NOT NULL DEFAULT 'created',
+  `providerSessionId` varchar(128),
+  `checkoutToken` varchar(128) NOT NULL,
+  `redirectUrl` text,
+  `codeUrl` text,
+  `displayContent` text,
+  `expiresAt` timestamp NULL,
+  `requestPayload` text,
+  `responsePayload` text,
+  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `payment_sessions_id` PRIMARY KEY(`id`),
+  CONSTRAINT `payment_sessions_orderId_orders_id_fk` FOREIGN KEY (`orderId`) REFERENCES `orders`(`id`) ON DELETE no action ON UPDATE no action,
+  CONSTRAINT `payment_sessions_checkoutToken_unique` UNIQUE(`checkoutToken`)
+);

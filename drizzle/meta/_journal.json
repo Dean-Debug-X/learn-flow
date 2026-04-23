@@ -1,0 +1,160 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1776137586897,
+      "tag": "0000_bouncy_tony_stark",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1776137731146,
+      "tag": "0001_yellow_deadpool",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1776200000000,
+      "tag": "0002_p0_learning_and_media",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1776201000000,
+      "tag": "0003_p1_engagement_and_moderation",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1776202000000,
+      "tag": "0004_p2_permissions_and_homepage",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1776203000000,
+      "tag": "0005_p3_commerce_and_membership",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1776204000000,
+      "tag": "0006_p4_media_delivery",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1776205000000,
+      "tag": "0007_p5_playback_tickets_and_hls",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1776206000000,
+      "tag": "0008_p6_transcode_jobs_and_callbacks",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1776207000000,
+      "tag": "0009_p8_payment_callbacks_and_order_idempotency",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1776208000000,
+      "tag": "0010_p9_refunds_and_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1776209000000,
+      "tag": "0011_p10_payment_sessions_and_gateways",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1776210000000,
+      "tag": "0012_p12_user_notifications_and_email_outbox",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1776211000000,
+      "tag": "0013_p14_system_config_center",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1776212000000,
+      "tag": "0014_p15_system_config_audit_and_snapshots",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1776213000000,
+      "tag": "0015_p16_admin_permissions_and_confirmations",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1776214000000,
+      "tag": "0016_p17_admin_action_audit_center",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1776215000000,
+      "tag": "0017_p18_admin_audit_alerts",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1776216000000,
+      "tag": "0018_p19_admin_risk_panel",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1776217000000,
+      "tag": "0019_p20_risk_playbooks_and_automation",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1776218000000,
+      "tag": "0020_p21_risk_sla_and_oncall",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1776219000000,
+      "tag": "0021_p22_multi_auth_foundation",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+CREATE TABLE `user_notifications` (
+  `id` int AUTO_INCREMENT NOT NULL,
+  `eventKey` varchar(191) NOT NULL,
+  `userId` int NOT NULL,
+  `eventType` enum('payment_paid','payment_failed','payment_cancelled','payment_refunded','benefits_repaired','benefits_revoked') NOT NULL,
+  `relatedOrderId` int,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `actionUrl` varchar(512),
+  `readAt` timestamp NULL,
+  `createdAt` timestamp NOT NULL DEFAULT (now()),
+  `updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `user_notifications_id` PRIMARY KEY(`id`),
+  CONSTRAINT `user_notifications_userId_users_id_fk` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action,
+  CONSTRAINT `user_notifications_relatedOrderId_orders_id_fk` FOREIGN KEY (`relatedOrderId`) REFERENCES `orders`(`id`) ON DELETE no action ON UPDATE no action,
+  CONSTRAINT `user_notifications_eventKey_unique` UNIQUE(`eventKey`)
+);
+
+CREATE TABLE `email_deliveries` (
+  `id` int AUTO_INCREMENT NOT NULL,
+  `eventKey` varchar(191) NOT NULL,
+  `eventType` enum('payment_paid','payment_failed','payment_cancelled','payment_refunded','benefits_repaired','benefits_revoked') NOT NULL,
+  `userId` int,
+  `relatedOrderId` int,
+  `provider` enum('log','webhook') NOT NULL DEFAULT 'log',
+  `recipientEmail` varchar(320),
+  `subject` varchar(255) NOT NULL,
+  `contentText` text NOT NULL,
+  `contentHtml` text,
+  `payload` text,
+  `status` enum('pending','sent','failed','skipped') NOT NULL DEFAULT 'pending',
+  `attempts` int NOT NULL DEFAULT 0,
+  `lastAttemptAt` timestamp NULL,
+  `sentAt` timestamp NULL,
+  `lastError` text,
+  `createdAt` timestamp NOT NULL DEFAULT (now()),
+  `updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `email_deliveries_id` PRIMARY KEY(`id`),
+  CONSTRAINT `email_deliveries_userId_users_id_fk` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action,
+  CONSTRAINT `email_deliveries_relatedOrderId_orders_id_fk` FOREIGN KEY (`relatedOrderId`) REFERENCES `orders`(`id`) ON DELETE no action ON UPDATE no action,
+  CONSTRAINT `email_deliveries_eventKey_unique` UNIQUE(`eventKey`)
+);
