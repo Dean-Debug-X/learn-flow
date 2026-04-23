@@ -1,8 +1,8 @@
 ALTER TABLE `comments`
   ADD COLUMN `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending' AFTER `parentId`;
-
+--> statement-breakpoint
 UPDATE `comments` SET `status` = 'approved' WHERE `status` IS NULL OR `status` = 'pending';
-
+--> statement-breakpoint
 CREATE TABLE `user_favorites` (
   `id` int AUTO_INCREMENT NOT NULL,
   `userId` int NOT NULL,
