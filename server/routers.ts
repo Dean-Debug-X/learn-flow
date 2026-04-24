@@ -130,9 +130,9 @@ import { saveUploadedBase64File } from "./uploads.js";
 import { createDirectUploadUrl, storageSupportsDirectUpload } from "./storage.js";
 import { issuePlaybackTicket } from "./playbackTickets.js";
 import { dispatchTranscodeJob } from "./transcode.js";
-import { createCheckoutForOrder, getPaymentGatewayOverview } from "./paymentGateway.js";
+import { createCheckoutForOrder, getPaymentGatewayOverview, paymentsEnabled } from "./paymentGateway.js";
 import { buildSystemCategorySummary } from "./systemConfigCatalog.js";
-import { ENV, isSmsDeliveryReady, isWeChatLoginReady } from "./_core/env.js";
+import { ENV, isWeChatLoginReady } from "./_core/env.js";
 import { sdk } from "./_core/sdk.js";
 import { AdminPermission, AdminLevel, getDangerousConfirmPhrase, hasAdminPermission, getEffectiveAdminLevel, listAdminPermissions } from "../shared/adminAccess.js";
 
@@ -208,26 +208,16 @@ function getAuthAvailableMethods() {
         ENV.emailFromAddress) ||
         (ENV.emailDeliveryMode === "webhook" && ENV.emailWebhookUrl)
     );
-  const phoneEnabled = isSmsDeliveryReady();
   const wechatEnabled = isWeChatLoginReady();
-  const legacyOauthEnabled = Boolean(ENV.oAuthServerUrl && ENV.appId);
 
   return {
     wechat: {
       enabled: wechatEnabled,
       kind: "redirect" as const,
     },
-    phone: {
-      enabled: phoneEnabled,
-      kind: "otp" as const,
-    },
     email: {
       enabled: emailEnabled,
       kind: "otp" as const,
-    },
-    legacyOAuth: {
-      enabled: legacyOauthEnabled,
-      kind: "redirect" as const,
     },
   };
 }
@@ -240,6 +230,15 @@ function throwAuthLoginError(error: unknown): never {
     });
   }
   throw error;
+}
+
+function assertPaymentsEnabled() {
+  if (!paymentsEnabled()) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "当前站点未开放在线支付",
+    });
+  }
 }
 
 async function recordAdminAudit(ctx: any, input: {
@@ -1130,7 +1129,10 @@ export const appRouter = router({
     overview: protectedProcedure.query(({ ctx }) => getMyCommerceOverview(ctx.user.id)),
     createOrder: protectedProcedure
       .input(z.object({ productId: z.number(), idempotencyKey: z.string().min(8).max(96).optional() }))
-      .mutation(({ input, ctx }) => createOrder(ctx.user.id, input.productId, { idempotencyKey: input.idempotencyKey })),
+      .mutation(({ input, ctx }) => {
+        assertPaymentsEnabled();
+        return createOrder(ctx.user.id, input.productId, { idempotencyKey: input.idempotencyKey });
+      }),
     createCheckout: protectedProcedure
       .input(
         z.object({
@@ -1139,14 +1141,15 @@ export const appRouter = router({
           channel: z.enum(["native", "page", "manual"]).optional(),
         })
       )
-      .mutation(({ input, ctx }) =>
-        createCheckoutForOrder({
+      .mutation(({ input, ctx }) => {
+        assertPaymentsEnabled();
+        return createCheckoutForOrder({
           orderId: input.orderId,
           userId: ctx.user.id,
           provider: input.provider,
           channel: input.channel,
-        })
-      ),
+        });
+      }),
     myOrders: protectedProcedure
       .input(z.object({ status: orderStatusSchema.optional().default("all") }).optional())
       .query(({ input, ctx }) => listOrdersByUser(ctx.user.id, { status: input?.status ?? "all" })),
@@ -1165,7 +1168,10 @@ export const appRouter = router({
       .query(({ input, ctx }) => getCheckoutStatusForUser(ctx.user.id, input)),
     payMock: protectedProcedure
       .input(z.object({ orderId: z.number() }))
-      .mutation(({ input, ctx }) => payOrderByMock(input.orderId, ctx.user.id)),
+      .mutation(({ input, ctx }) => {
+        assertPaymentsEnabled();
+        return payOrderByMock(input.orderId, ctx.user.id);
+      }),
     cancelMyOrder: protectedProcedure
       .input(z.object({ orderId: z.number() }))
       .mutation(({ input, ctx }) => cancelOrder(input.orderId, { userId: ctx.user.id })),

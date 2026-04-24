@@ -84,9 +84,9 @@ describe("auth", () => {
     const result = await caller.auth.availableMethods();
 
     expect(result).toHaveProperty("wechat");
-    expect(result).toHaveProperty("phone");
     expect(result).toHaveProperty("email");
-    expect(result).toHaveProperty("legacyOAuth");
+    expect(result.wechat.kind).toBe("redirect");
+    expect(result.email.kind).toBe("otp");
   });
 
   it("returns bound identities for authenticated user", async () => {

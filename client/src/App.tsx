@@ -8,7 +8,6 @@ import Home from "./pages/Home";
 import CourseDetail from "./pages/CourseDetail";
 import MyLearning from "./pages/MyLearning";
 import Pricing from "./pages/Pricing";
-import PaymentResult from "./pages/PaymentResult";
 import NotificationsCenter from "./pages/NotificationsCenter";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -33,11 +32,6 @@ function Router() {
       <Route path="/course/:slug" component={CourseDetail} />
       <Route path="/me" component={MyLearning} />
       <Route path="/pricing" component={Pricing} />
-      <Route path="/payment/result" component={PaymentResult} />
-      <Route path="/payment/pending" component={PaymentResult} />
-      <Route path="/payment/success" component={PaymentResult} />
-      <Route path="/payment/failed" component={PaymentResult} />
-      <Route path="/payment/refunded" component={PaymentResult} />
       <Route path="/notifications" component={NotificationsCenter} />
       <Route path="/login" component={Login} />
       <Route path="/admin" component={AdminDashboard} />

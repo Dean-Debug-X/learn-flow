@@ -40,7 +40,7 @@ const BASE_ENV = {
   adminRiskEscalateAfterMinutes: Number(process.env.ADMIN_RISK_ESCALATE_AFTER_MINUTES ?? 10),
   adminRiskRepeatEscalateMinutes: Number(process.env.ADMIN_RISK_ESCALATE_REPEAT_MINUTES ?? 30),
   paymentReturnUrlBase: process.env.PAYMENT_RETURN_URL_BASE ?? process.env.PUBLIC_APP_URL ?? "",
-  paymentDefaultProvider: process.env.PAYMENT_DEFAULT_PROVIDER ?? "alipay",
+  paymentDefaultProvider: process.env.PAYMENT_DEFAULT_PROVIDER ?? "disabled",
   wechatLoginAppId: process.env.WECHAT_LOGIN_APP_ID ?? "",
   wechatLoginAppSecret: process.env.WECHAT_LOGIN_APP_SECRET ?? "",
   wechatLoginRedirectUri:

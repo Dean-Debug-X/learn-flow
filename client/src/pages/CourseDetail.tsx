@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation, useParams } from "wouter";
+import { Link, useParams } from "wouter";
 import {
   Clock,
   Star,
@@ -16,8 +16,6 @@ import {
   Reply,
   ShieldCheck,
   UserCheck,
-  Crown,
-  CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,19 +49,12 @@ const accessLabels: Record<string, string> = {
   paid: "单课付费",
 };
 
-const paymentProviderLabels: Record<string, string> = {
-  alipay: "支付宝",
-  wechat: "微信支付",
-  mock: "模拟支付",
-};
-
 function formatPrice(priceCents?: number | null) {
   if (!priceCents || priceCents <= 0) return null;
   return `¥${(priceCents / 100).toFixed(2)}`;
 }
 
 export default function CourseDetail() {
-  const [, navigate] = useLocation();
   const { slug } = useParams<{ slug: string }>();
   const { isAuthenticated, user } = useAuth();
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -100,16 +91,6 @@ export default function CourseDetail() {
   const { data: accessSummary } = trpc.commerce.myAccess.useQuery(undefined, {
     enabled: isAuthenticated,
   });
-  const { data: gatewayStatus } = trpc.commerce.gatewayStatus.useQuery();
-  const { data: courseProduct } = trpc.product.byCourse.useQuery(
-    { courseId: course?.id ?? 0 },
-    { enabled: !!course?.id && course?.accessType === "paid" }
-  );
-  const { data: vipProducts } = trpc.product.list.useQuery(
-    { activeOnly: true, type: "vip" },
-    { enabled: course?.accessType === "vip" }
-  );
-
   const recordViewMutation = trpc.course.recordView.useMutation();
   const savePositionMutation = trpc.progress.savePosition.useMutation();
   const completeChapterMutation = trpc.progress.completeChapter.useMutation({
@@ -127,22 +108,6 @@ export default function CourseDetail() {
     },
     onError: (error) => toast.error(`操作失败：${error.message}`),
   });
-  const createOrderMutation = trpc.commerce.createOrder.useMutation();
-  const createCheckoutMutation = trpc.commerce.createCheckout.useMutation({
-    onError: (error) => toast.error(`发起支付失败：${error.message}`),
-  });
-  const payMockMutation = trpc.commerce.payMock.useMutation({
-    onSuccess: async () => {
-      await Promise.all([
-        utils.commerce.myAccess.invalidate(),
-        utils.commerce.overview.invalidate(),
-        utils.commerce.myOrders.invalidate(),
-      ]);
-      toast.success("支付成功，课程权限已发放");
-    },
-    onError: (error) => toast.error(`支付失败：${error.message}`),
-  });
-
   const createCommentMutation = trpc.comment.create.useMutation({
     onSuccess: (result) => {
       setCommentContent("");
@@ -181,11 +146,6 @@ export default function CourseDetail() {
   const isAdmin = user?.role === "admin";
   const hasVipAccess = Boolean(accessSummary?.hasVip);
   const hasPaidCourseAccess = Boolean(course?.id && accessSummary?.entitledCourseIds?.includes(course.id));
-  const vipProduct = vipProducts?.[0] ?? null;
-  const readyRealProviders = useMemo(
-    () => (gatewayStatus?.supported ?? []).filter((item) => item.ready && item.provider !== "mock"),
-    [gatewayStatus]
-  );
   const canAccessFullCourse = Boolean(
     course && (
       isAdmin ||
@@ -207,7 +167,7 @@ export default function CourseDetail() {
     : undefined;
   const completedChapterIds = progress?.completedChapterIds ?? [];
   const currentAccessLabel = course?.accessType === "paid" ? formatPrice(course.priceCents) ?? accessLabels.paid : accessLabels[course?.accessType ?? "free"];
-  const purchasing = createOrderMutation.isPending || createCheckoutMutation.isPending || payMockMutation.isPending;
+  const paymentsDisabled = course?.accessType === "vip" || course?.accessType === "paid";
 
   useEffect(() => {
     if (!course?.id || hasRecordedViewRef.current) return;
@@ -260,58 +220,6 @@ export default function CourseDetail() {
       setActiveChapter(nextChapter.id);
     }
   };
-
-
-  const handlePurchase = async (productId: number, provider?: "alipay" | "wechat" | "mock") => {
-    if (!isAuthenticated) {
-      window.location.href = getLoginUrl();
-      return;
-    }
-    const selectedProvider = provider || (gatewayStatus?.defaultProvider as "alipay" | "wechat" | "mock" | undefined) || "mock";
-    try {
-      const order = await createOrderMutation.mutateAsync({ productId });
-      if (!order?.id) throw new Error("订单创建失败");
-      if (selectedProvider === "mock") {
-        await payMockMutation.mutateAsync({ orderId: order.id });
-        navigate(`/payment/success?orderNo=${encodeURIComponent(order.orderNo)}&provider=mock`);
-        return;
-      }
-      const checkout = await createCheckoutMutation.mutateAsync({
-        orderId: order.id,
-        provider: selectedProvider,
-        channel: selectedProvider === "wechat" ? "native" : "page",
-      });
-      if (checkout?.launchUrl) {
-        window.open(checkout.launchUrl, "_blank", "noopener,noreferrer");
-      }
-      if (checkout?.statusPageUrl) {
-        navigate(checkout.statusPageUrl);
-      }
-      toast.success(selectedProvider === "wechat" ? "微信支付二维码已生成，当前页面会自动确认到账结果" : "已打开支付页面，当前页面会自动确认到账结果");
-    } catch (error: any) {
-      toast.error(error?.message ?? "购买失败，请重试");
-    }
-  };
-
-  const renderPurchaseActions = (productId: number, kind: "vip" | "course", priceText?: string | null) => (
-    <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
-      {readyRealProviders.map((provider) => (
-        <Button
-          key={`${kind}-${provider.provider}`}
-          size="sm"
-          className="gap-1.5"
-          disabled={purchasing}
-          onClick={() => handlePurchase(productId, provider.provider as "alipay" | "wechat") }
-        >
-          {purchasing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : provider.provider === "wechat" ? <Crown className="w-3.5 h-3.5" /> : <CreditCard className="w-3.5 h-3.5" />}
-          {kind === "vip" ? `${paymentProviderLabels[provider.provider]}开通会员` : `${paymentProviderLabels[provider.provider]}购买${priceText ? ` ${priceText}` : ""}`}
-        </Button>
-      ))}
-      <Button size="sm" variant="outline" disabled={purchasing} onClick={() => handlePurchase(productId, "mock")}>
-        开发模式模拟支付
-      </Button>
-    </div>
-  );
 
   if (courseLoading) {
     return (
@@ -407,8 +315,11 @@ export default function CourseDetail() {
                         <Button size="sm" onClick={() => (window.location.href = getLoginUrl())}>立即登录</Button>
                       ) : null}
                     </div>
-                    {isAuthenticated && course.accessType === "vip" && !hasVipAccess && vipProduct ? renderPurchaseActions(vipProduct.id, "vip") : null}
-                    {isAuthenticated && course.accessType === "paid" && !hasPaidCourseAccess && courseProduct ? renderPurchaseActions(courseProduct.id, "course", formatPrice(courseProduct.priceCents)) : null}
+                    {isAuthenticated && paymentsDisabled ? (
+                      <div className="mt-4 text-xs text-white/60">
+                        当前站点未开放在线支付，如需开通权限请联系管理员人工处理。
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               )}
@@ -445,14 +356,17 @@ export default function CourseDetail() {
                     {!isAuthenticated ? (
                       <Button size="sm" onClick={() => (window.location.href = getLoginUrl())}>立即登录</Button>
                     ) : null}
-                    {(course.accessType === "vip" || course.accessType === "paid") ? (
+                    {paymentsDisabled ? (
                       <Link href="/pricing">
-                        <Button size="sm" variant="outline">查看商品页</Button>
+                        <Button size="sm" variant="outline">查看权限说明</Button>
                       </Link>
                     ) : null}
                   </div>
-                  {isAuthenticated && course.accessType === "vip" && !hasVipAccess && vipProduct ? renderPurchaseActions(vipProduct.id, "vip") : null}
-                  {isAuthenticated && course.accessType === "paid" && !hasPaidCourseAccess && courseProduct ? renderPurchaseActions(courseProduct.id, "course", formatPrice(courseProduct.priceCents)) : null}
+                  {isAuthenticated && paymentsDisabled ? (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      当前站点未开放在线支付，如需开通会员或单课权限请联系管理员人工处理。
+                    </p>
+                  ) : null}
                 </div>
               </div>
             ) : null}
